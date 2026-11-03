@@ -62,6 +62,35 @@ public class VetServiceTest {
     }
 
     @Test
+    public void testFindVetById() {
+        // Preparar un veterinario existente en el repositorio simulado.
+        Integer id = 7;
+        Vet existingVet = new Vet(id, "Ana", "Torres",
+                "ana.torres@petclinic.com", "987654321", true);
+        VetDTO expected = new VetDTO(id, "Ana", "Torres",
+                "ana.torres@petclinic.com", "987654321", true);
+
+        when(vetRepository.findById(id)).thenReturn(Optional.of(existingVet));
+        when(vetMapper.mapToDto(existingVet)).thenReturn(expected);
+
+        // Ejecutar la busqueda real del servicio.
+        VetDTO result = vetService.findById(id);
+
+        // Verificar la identidad, los datos y la consulta a las dependencias.
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals(existingVet.getFirstName(), result.getFirstName());
+        assertEquals(existingVet.getLastName(), result.getLastName());
+        assertEquals(existingVet.getEmail(), result.getEmail());
+        assertEquals(existingVet.getPhone(), result.getPhone());
+        assertEquals(existingVet.isActive(), result.getActive());
+
+        verify(vetRepository).findById(id);
+        verify(vetMapper).mapToDto(existingVet);
+        verifyNoMoreInteractions(vetRepository, vetMapper);
+    }
+
+    @Test
     public void testUpdateVet() {
         // Preparar un veterinario existente y datos nuevos, sin crear registros reales.
         Vet existingVet = new Vet(7, "Ana", "Torres",

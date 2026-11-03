@@ -40,6 +40,11 @@ public class VetServiceImpl implements VetService {
     }
 
     @Override
+    public VetDTO findById(Integer id) {
+        return vetMapper.mapToDto(findVet(id));
+    }
+
+    @Override
     public void deactivateVet(Integer id) {
         Vet vet = findVet(id);
         vet.setActive(false);
