@@ -3,16 +3,18 @@ package com.tecsup.petclinic.services;
 import com.tecsup.petclinic.entities.Vet;
 import com.tecsup.petclinic.exceptions.VetNotFoundException;
 import com.tecsup.petclinic.repositories.VetRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class VetServiceImpl implements VetService {
 
     private final VetRepository vetRepository;
+
+    public VetServiceImpl(VetRepository vetRepository) {
+        this.vetRepository = vetRepository;
+    }
 
     @Override
     public void deactivateVet(Integer id) {
