@@ -27,46 +27,35 @@ public class VetServiceTest {
 
     @Test
     public void testCreateVet() {
-        // Preparar: simular las dependencias del servicio.
-        VetDTO newVetDTO = VetDTO.builder()
-                .firstName("Ana")
-                .lastName("Torres")
-                .email("ana.torres@petclinic.com")
-                .phone("987654321")
-                .active(true)
-                .build();
-        Vet newVet = new Vet(null, "Ana", "Torres",
+        // Preparar los datos y simular las dependencias.
+        VetDTO input = new VetDTO(null, "Ana", "Torres",
                 "ana.torres@petclinic.com", "987654321", true);
-        Vet savedVet = new Vet(7, "Ana", "Torres",
+        Vet entity = new Vet(null, "Ana", "Torres",
                 "ana.torres@petclinic.com", "987654321", true);
-        VetDTO savedVetDTO = VetDTO.builder()
-                .id(7)
-                .firstName("Ana")
-                .lastName("Torres")
-                .email("ana.torres@petclinic.com")
-                .phone("987654321")
-                .active(true)
-                .build();
+        Vet savedEntity = new Vet(7, "Ana", "Torres",
+                "ana.torres@petclinic.com", "987654321", true);
+        VetDTO savedDTO = new VetDTO(7, "Ana", "Torres",
+                "ana.torres@petclinic.com", "987654321", true);
 
-        when(vetMapper.mapToEntity(newVetDTO)).thenReturn(newVet);
-        when(vetRepository.save(newVet)).thenReturn(savedVet);
-        when(vetMapper.mapToDto(savedVet)).thenReturn(savedVetDTO);
+        when(vetMapper.mapToEntity(input)).thenReturn(entity);
+        when(vetRepository.save(entity)).thenReturn(savedEntity);
+        when(vetMapper.mapToDto(savedEntity)).thenReturn(savedDTO);
 
-        // Ejecutar: llamar a la implementacion real del servicio.
-        VetDTO result = vetService.create(newVetDTO);
+        // Ejecutar el servicio real, sin Spring ni base de datos.
+        VetDTO result = vetService.create(input);
 
-        // Verificar: datos devueltos y delegacion al repositorio y al mapper.
+        // Verificar el resultado y el guardado del veterinario.
         assertNotNull(result);
         assertEquals(7, result.getId());
-        assertEquals(newVetDTO.getFirstName(), result.getFirstName());
-        assertEquals(newVetDTO.getLastName(), result.getLastName());
-        assertEquals(newVetDTO.getEmail(), result.getEmail());
-        assertEquals(newVetDTO.getPhone(), result.getPhone());
-        assertEquals(newVetDTO.getActive(), result.getActive());
+        assertEquals(input.getFirstName(), result.getFirstName());
+        assertEquals(input.getLastName(), result.getLastName());
+        assertEquals(input.getEmail(), result.getEmail());
+        assertEquals(input.getPhone(), result.getPhone());
+        assertEquals(input.getActive(), result.getActive());
 
-        verify(vetMapper).mapToEntity(newVetDTO);
-        verify(vetRepository).save(newVet);
-        verify(vetMapper).mapToDto(savedVet);
+        verify(vetMapper).mapToEntity(input);
+        verify(vetRepository).save(entity);
+        verify(vetMapper).mapToDto(savedEntity);
         verifyNoMoreInteractions(vetRepository, vetMapper);
     }
 }
