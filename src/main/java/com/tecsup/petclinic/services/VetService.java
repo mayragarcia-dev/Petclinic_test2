@@ -18,4 +18,6 @@ public interface VetService {
     void reactivateVet(Integer id);
 
     List<Vet> findActiveVets();
+
+    List<Vet> findInactiveVets();
 }

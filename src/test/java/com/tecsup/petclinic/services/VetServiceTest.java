@@ -2,6 +2,7 @@ package com.tecsup.petclinic.services;
 
 import com.tecsup.petclinic.dtos.VetDTO;
 import com.tecsup.petclinic.entities.Vet;
+import com.tecsup.petclinic.exceptions.VetNotFoundException;
 import com.tecsup.petclinic.mappers.VetMapper;
 import com.tecsup.petclinic.repositories.VetRepository;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -124,5 +126,43 @@ public class VetServiceTest {
         assertEquals(input, result);
         verify(vetMapper).mapToDto(savedVet);
         verifyNoMoreInteractions(vetRepository, vetMapper);
+    }
+
+    @Test
+    public void testFindVetById_NotFound() {
+        Integer missingId = 999;
+        when(vetRepository.findById(missingId)).thenReturn(Optional.empty());
+
+        assertThrows(VetNotFoundException.class, () -> vetService.findById(missingId));
+
+        verify(vetRepository).findById(missingId);
+        verifyNoInteractions(vetMapper);
+    }
+
+    @Test
+    public void testDeactivateVet_NotFound() {
+        Integer missingId = 999;
+        when(vetRepository.findById(missingId)).thenReturn(Optional.empty());
+
+        assertThrows(VetNotFoundException.class, () -> vetService.deactivateVet(missingId));
+
+        verify(vetRepository).findById(missingId);
+        verify(vetRepository, never()).save(any(Vet.class));
+        verifyNoInteractions(vetMapper);
+    }
+
+    @Test
+    public void testFindInactiveVets() {
+        List<Vet> inactiveVets = List.of(
+                new Vet(6, "Sharon", "Jenkins", "sharon@example.com", "987654321", false),
+                new Vet(8, "Rafael", "Ortega", "rafael@example.com", "123456780", false));
+        when(vetRepository.findByActiveFalse()).thenReturn(inactiveVets);
+
+        List<Vet> result = vetService.findInactiveVets();
+
+        assertEquals(inactiveVets, result);
+        assertTrue(result.stream().noneMatch(Vet::isActive));
+        verify(vetRepository).findByActiveFalse();
+        verifyNoInteractions(vetMapper);
     }
 }

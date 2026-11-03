@@ -63,6 +63,11 @@ public class VetServiceImpl implements VetService {
         return vetRepository.findByActiveTrue();
     }
 
+    @Override
+    public List<Vet> findInactiveVets() {
+        return vetRepository.findByActiveFalse();
+    }
+
     private Vet findVet(Integer id) {
         return vetRepository.findById(id)
                 .orElseThrow(() -> new VetNotFoundException("Veterinarian not found: " + id));
