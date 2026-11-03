@@ -27,6 +27,19 @@ public class VetServiceImpl implements VetService {
     }
 
     @Override
+    public VetDTO update(VetDTO vetDTO) {
+        Vet vet = findVet(vetDTO.getId());
+        vet.setFirstName(vetDTO.getFirstName());
+        vet.setLastName(vetDTO.getLastName());
+        vet.setEmail(vetDTO.getEmail());
+        vet.setPhone(vetDTO.getPhone());
+        vet.setActive(vetDTO.getActive());
+
+        Vet savedVet = vetRepository.save(vet);
+        return vetMapper.mapToDto(savedVet);
+    }
+
+    @Override
     public void deactivateVet(Integer id) {
         Vet vet = findVet(id);
         vet.setActive(false);

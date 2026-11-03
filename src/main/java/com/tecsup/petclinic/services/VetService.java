@@ -9,6 +9,8 @@ public interface VetService {
 
     VetDTO create(VetDTO vetDTO);
 
+    VetDTO update(VetDTO vetDTO);
+
     void deactivateVet(Integer id);
 
     void reactivateVet(Integer id);

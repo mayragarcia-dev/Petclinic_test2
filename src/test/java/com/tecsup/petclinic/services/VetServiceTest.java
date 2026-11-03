@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -56,6 +58,42 @@ public class VetServiceTest {
         verify(vetMapper).mapToEntity(input);
         verify(vetRepository).save(entity);
         verify(vetMapper).mapToDto(savedEntity);
+        verifyNoMoreInteractions(vetRepository, vetMapper);
+    }
+
+    @Test
+    public void testUpdateVet() {
+        // Preparar un veterinario existente y datos nuevos, sin crear registros reales.
+        Vet existingVet = new Vet(7, "Ana", "Torres",
+                "ana.torres@petclinic.com", "987654321", true);
+        VetDTO input = new VetDTO(7, "Maria", "Lopez",
+                "maria.lopez@petclinic.com", "912345678", false);
+        Vet savedVet = new Vet(7, "Maria", "Lopez",
+                "maria.lopez@petclinic.com", "912345678", false);
+        VetDTO savedDTO = new VetDTO(7, "Maria", "Lopez",
+                "maria.lopez@petclinic.com", "912345678", false);
+
+        when(vetRepository.findById(7)).thenReturn(Optional.of(existingVet));
+        when(vetRepository.save(existingVet)).thenReturn(savedVet);
+        when(vetMapper.mapToDto(savedVet)).thenReturn(savedDTO);
+
+        // Ejecutar la actualizacion real del servicio.
+        VetDTO result = vetService.update(input);
+
+        // Verificar que el registro enviado a guardar conserve el ID y cambie sus datos.
+        verify(vetRepository).findById(7);
+        verify(vetRepository).save(same(existingVet));
+        assertEquals(7, existingVet.getId());
+        assertEquals(input.getFirstName(), existingVet.getFirstName());
+        assertEquals(input.getLastName(), existingVet.getLastName());
+        assertEquals(input.getEmail(), existingVet.getEmail());
+        assertEquals(input.getPhone(), existingVet.getPhone());
+        assertEquals(input.getActive(), existingVet.isActive());
+
+        // El resultado debe provenir del registro devuelto por el repositorio.
+        assertNotNull(result);
+        assertEquals(input, result);
+        verify(vetMapper).mapToDto(savedVet);
         verifyNoMoreInteractions(vetRepository, vetMapper);
     }
 }
